@@ -13,19 +13,20 @@ module Capybara
         select2_container = first("label", text: select_name).find(:xpath, '..').find(".select2-container")
       end
 
-      select2_container.find(".select2-choice").click
+      select2_container.find(".select2-choice").trigger('click')
 
       if options.has_key? :search
         find(:xpath, "//body").find("input.select2-input").set(value)
         page.execute_script(%|$("input.select2-input:visible").keyup();|)
-        drop_container = ".select2-results"
+        drop_container = ".select2-results li"
       else
-        drop_container = ".select2-drop"
+        drop_container = ".select2-offscreen option"
       end
 
       [value].flatten.each do |value|
         select2_container.find(:xpath, "a[contains(concat(' ',normalize-space(@class),' '),' select2-choice ')] | ul[contains(concat(' ',normalize-space(@class),' '),' select2-choices ')]").click
-        find(:xpath, "//body").find("#{drop_container} li", text: value).click
+        find(:xpath, "//body").find("#{drop_container}", text: value).select_option
+        sleep 1
       end
     end
   end
